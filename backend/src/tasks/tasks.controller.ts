@@ -7,10 +7,13 @@ import {
   Param,
   Delete,
   UseGuards,
+  NotFoundException,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { TasksService } from './tasks.service';
 import { CreateTaskDto, UpdateTaskDto } from './tasks.dto';
+import { CurrentUser } from 'src/users/users.decorator';
 
 @UseGuards(JwtAuthGuard)
 @Controller('tasks')
@@ -18,22 +21,58 @@ export class TasksController {
   constructor(private readonly tasksService: TasksService) {}
 
   @Post()
-  create(@Body() createTaskDto: CreateTaskDto) {
-    return this.tasksService.create(createTaskDto);
+  create(@Body() createTaskDto: CreateTaskDto, @CurrentUser() currentUser) {
+    return this.tasksService.create(currentUser.id, createTaskDto);
   }
 
   @Get()
-  findAll() {
-    return this.tasksService.findAll();
+  findAllByUserId(@CurrentUser() currentUser) {
+    return this.tasksService.findAllByUserId(+currentUser.id);
+  }
+
+  @Get(':id')
+  async findOneById(@Param('id') id: string, @CurrentUser() currentUser) {
+    const task = await this.tasksService.findOneById(+id);
+    if (!task) {
+      throw new NotFoundException('Task not found');
+    }
+
+    if (task.userId !== +currentUser.id) {
+      throw new UnauthorizedException('You have no access to this task');
+    }
+
+    return task;
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateTaskDto: UpdateTaskDto) {
+  async update(
+    @Param('id') id: string,
+    @Body() updateTaskDto: UpdateTaskDto,
+    @CurrentUser() currentUser,
+  ) {
+    const task = await this.tasksService.findOneById(+id);
+    if (!task) {
+      throw new NotFoundException('Task not found');
+    }
+
+    if (task.userId !== +currentUser.id) {
+      throw new UnauthorizedException('You have no access to this task');
+    }
+
     return this.tasksService.update(+id, updateTaskDto);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
+  async remove(@Param('id') id: string, @CurrentUser() currentUser) {
+    const task = await this.tasksService.findOneById(+id);
+    if (!task) {
+      throw new NotFoundException('Task not found');
+    }
+
+    if (task.userId !== +currentUser.id) {
+      throw new UnauthorizedException('You have no access to this task');
+    }
+
     return this.tasksService.delete(+id);
   }
 }

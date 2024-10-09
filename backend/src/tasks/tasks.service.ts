@@ -7,17 +7,31 @@ import { CreateTaskDto, UpdateTaskDto } from './tasks.dto';
 export class TasksService {
   constructor(private prisma: PrismaService) {}
 
-  async create(taskData: CreateTaskDto): Promise<Task> {
+  async create(userId: number, taskData: CreateTaskDto): Promise<Task> {
     return this.prisma.task.create({
       data: {
-        userId: 1,
         ...taskData,
+        userId,
       },
     });
   }
 
   async findAll(): Promise<Task[]> {
     return this.prisma.task.findMany();
+  }
+
+  async findAllByUserId(userId: number): Promise<Task[]> {
+    return this.prisma.task.findMany({
+      where: {
+        userId,
+      },
+    });
+  }
+
+  async findOneById(id: number): Promise<Task> {
+    return this.prisma.task.findFirst({
+      where: { id },
+    });
   }
 
   async update(id: number, taskData: UpdateTaskDto): Promise<Task> {

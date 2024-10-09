@@ -3,6 +3,16 @@ import { TasksController } from './tasks.controller';
 import { TasksService } from './tasks.service';
 import { CreateTaskDto, UpdateTaskDto } from './tasks.dto';
 import { PrismaService } from 'src/database/prisma.service';
+import { User } from '@prisma/client';
+import { NotFoundException, UnauthorizedException } from '@nestjs/common';
+
+const user: User = {
+  id: 1,
+  email: 'test@test.com',
+  password: 'testpassword',
+  createdAt: new Date(),
+  updatedAt: new Date(),
+};
 
 describe('TasksController', () => {
   let controller: TasksController;
@@ -37,12 +47,12 @@ describe('TasksController', () => {
 
       jest.spyOn(tasksService, 'create').mockImplementation(async () => task);
 
-      expect(await controller.create(createTaskDto)).toEqual(task);
+      expect(await controller.create(createTaskDto, user)).toEqual(task);
     });
   });
 
-  describe('findAll', () => {
-    it('should return all tasks', async () => {
+  describe('findAllByUserId', () => {
+    it('should return all tasks of current user', async () => {
       const now = new Date();
       const task1 = {
         id: 1,
@@ -62,19 +72,72 @@ describe('TasksController', () => {
       };
       const tasks = [task1, task2];
 
-      jest.spyOn(tasksService, 'findAll').mockImplementation(async () => tasks);
+      jest
+        .spyOn(tasksService, 'findAllByUserId')
+        .mockImplementation(async () => tasks);
 
-      expect(await controller.findAll()).toEqual(tasks);
+      expect(await controller.findAllByUserId(user)).toEqual(tasks);
+    });
+  });
+
+  describe('findOneById', () => {
+    it('should return a task', async () => {
+      const now = new Date();
+      const task = {
+        id: 1,
+        title: 'Task 1',
+        isCompleted: false,
+        createdAt: now,
+        updatedAt: now,
+        userId: 1,
+      };
+
+      jest
+        .spyOn(tasksService, 'findOneById')
+        .mockImplementation(async () => task);
+
+      expect(await controller.findOneById('1', user)).toEqual(task);
+    });
+
+    it('should throw an error if task is not found', async () => {
+      jest
+        .spyOn(tasksService, 'findOneById')
+        .mockImplementation(async () => null);
+
+      await expect(controller.findOneById('1', user)).rejects.toThrow(
+        NotFoundException,
+      );
+    });
+
+    it('should throw an error if user does not have access to the task', async () => {
+      const now = new Date();
+      const task = {
+        id: 1,
+        title: 'Task 1',
+        isCompleted: false,
+        createdAt: now,
+        updatedAt: now,
+        userId: 2,
+      };
+
+      jest
+        .spyOn(tasksService, 'findOneById')
+        .mockImplementation(async () => task);
+
+      await expect(controller.findOneById('1', user)).rejects.toThrow(
+        UnauthorizedException,
+      );
     });
   });
 
   describe('update', () => {
+    const updateTaskDto: UpdateTaskDto = {
+      title: 'Updated Task',
+      isCompleted: true,
+    };
+
     it('should update a task', async () => {
       const now = new Date();
-      const updateTaskDto: UpdateTaskDto = {
-        title: 'Updated Task',
-        isCompleted: true,
-      };
       const task = {
         id: 1,
         ...updateTaskDto,
@@ -83,9 +146,42 @@ describe('TasksController', () => {
         userId: 1,
       };
 
+      jest
+        .spyOn(tasksService, 'findOneById')
+        .mockImplementation(async () => task);
       jest.spyOn(tasksService, 'update').mockImplementation(async () => task);
 
-      expect(await controller.update('1', updateTaskDto)).toEqual(task);
+      expect(await controller.update('1', updateTaskDto, user)).toEqual(task);
+    });
+
+    it('should throw an error if task does not exist', async () => {
+      jest
+        .spyOn(tasksService, 'findOneById')
+        .mockImplementation(async () => null);
+
+      await expect(controller.update('1', updateTaskDto, user)).rejects.toThrow(
+        NotFoundException,
+      );
+    });
+
+    it('should throw an error if user does not have access to the task', async () => {
+      const now = new Date();
+      const task = {
+        id: 1,
+        title: 'Task 1',
+        isCompleted: false,
+        createdAt: now,
+        updatedAt: now,
+        userId: 2,
+      };
+
+      jest
+        .spyOn(tasksService, 'findOneById')
+        .mockImplementation(async () => task);
+
+      await expect(controller.update('1', updateTaskDto, user)).rejects.toThrow(
+        UnauthorizedException,
+      );
     });
   });
 
@@ -101,9 +197,42 @@ describe('TasksController', () => {
         userId: 1,
       };
 
+      jest
+        .spyOn(tasksService, 'findOneById')
+        .mockImplementation(async () => task);
       jest.spyOn(tasksService, 'delete').mockImplementation(async () => task);
 
-      expect(await controller.remove('1')).toEqual(task);
+      expect(await controller.remove('1', user)).toEqual(task);
+    });
+
+    it('should throw an error if task is not found', async () => {
+      jest
+        .spyOn(tasksService, 'findOneById')
+        .mockImplementation(async () => null);
+
+      await expect(controller.remove('1', user)).rejects.toThrow(
+        NotFoundException,
+      );
+    });
+
+    it('should throw an error if user does not have access to the task', async () => {
+      const now = new Date();
+      const task = {
+        id: 1,
+        title: 'Task 1',
+        isCompleted: false,
+        createdAt: now,
+        updatedAt: now,
+        userId: 2,
+      };
+
+      jest
+        .spyOn(tasksService, 'findOneById')
+        .mockImplementation(async () => task);
+
+      await expect(controller.remove('1', user)).rejects.toThrow(
+        UnauthorizedException,
+      );
     });
   });
 });

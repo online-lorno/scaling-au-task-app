@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { AppBar, Container, Toolbar, Typography } from "@mui/material";
-import { useAppSelector } from "@/redux/hooks";
+import { useAppSelector } from "@/lib/redux/hooks";
 import ElevationScroll from "./ElevationScroll";
 import HeaderUserMenu from "./HeaderUserMenu";
 

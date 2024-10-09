@@ -9,7 +9,7 @@ import {
   ListItemIcon,
 } from "@mui/material";
 import { Logout } from "@mui/icons-material";
-import { useAppSelector } from "@/redux/hooks";
+import { useAppSelector } from "@/lib/redux/hooks";
 
 const HeaderUserMenu = () => {
   const email = useAppSelector((state) => state.auth.email);

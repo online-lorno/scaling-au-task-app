@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
-import { getTokenFromRequest } from "@/utils/token";
+import { getTokenFromRequest } from "@/lib/utils/token";
 
 // Middleware will only run on Edge Runtime(Vercel),
 // this will not work when running in localhost

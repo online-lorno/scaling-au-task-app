@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import { Container, CssBaseline, Toolbar } from "@mui/material";
-import StoreProvider from "@/providers/store-provider";
+import StoreProvider from "@/lib/providers/store-provider";
 import "./globals.css";
 import Header from "@/components/Header";
 

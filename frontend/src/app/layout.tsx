@@ -30,14 +30,12 @@ export default function RootLayout({
     <html lang="en">
       <head />
       <body className={`${geistSans.variable} ${geistMono.variable}`}>
-        <>
-          <CssBaseline />
-          <StoreProvider>
-            <Header />
-            <Toolbar />
-            <Container>{children}</Container>
-          </StoreProvider>
-        </>
+        <CssBaseline />
+        <StoreProvider>
+          <Header />
+          <Toolbar />
+          <Container>{children}</Container>
+        </StoreProvider>
       </body>
     </html>
   );

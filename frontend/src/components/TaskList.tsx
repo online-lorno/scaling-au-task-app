@@ -3,37 +3,56 @@
 import { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import {
+  Alert,
   Box,
-  Button,
   CircularProgress,
-  Grid2 as Grid,
-  TextField,
+  Snackbar,
+  SnackbarCloseReason,
 } from "@mui/material";
 import {
   useAddTaskMutation,
+  useDeleteTaskMutation,
   useGetTasksQuery,
+  useUpdateTaskMutation,
 } from "@/lib/redux/slices/api-slice";
-import { setTasks } from "@/lib/redux/slices/tasks-slice";
+import {
+  setTasks,
+  addTask,
+  updateTask,
+  deleteTask,
+} from "@/lib/redux/slices/tasks-slice";
 import { Task } from "@/lib/types";
 import TaskItem from "./TaskItem";
-
 import { useAppSelector } from "@/lib/redux/hooks";
+import TaskForm from "./TaskForm";
 
 const TaskList = () => {
   const dispatch = useDispatch();
   const tasks = useAppSelector((state) => state.tasks.tasks);
+  const [openSnackBar, setOpenSnackBar] = useState(false);
+  const [errorText, setErrorText] = useState("");
   const [title, setTitle] = useState("");
   const [toEditTask, setToEditTask] = useState<Task>();
   const [toDeleteTask, setToDeleteTask] = useState<Task>();
-  const {
-    data: dataTasks,
-    error: errorTasks,
-    isLoading: isLoadingTasks,
-  } = useGetTasksQuery(undefined);
-  const [
-    addTaskMutation,
-    { error: errorAddTask, isLoading: isLoadingAddTask },
-  ] = useAddTaskMutation();
+  const { data: dataTasks, isLoading: isLoadingTasks } =
+    useGetTasksQuery(undefined);
+  const [addTaskMutation, { isLoading: isLoadingAddTask }] =
+    useAddTaskMutation();
+  const [updateTaskMutation, { isLoading: isLoadingUpdateTask }] =
+    useUpdateTaskMutation();
+  const [deleteTaskMutation, { isLoading: isLoadingDeleteTask }] =
+    useDeleteTaskMutation();
+
+  const handleCloseSnackBar = (
+    _?: React.SyntheticEvent | Event,
+    reason?: SnackbarCloseReason
+  ) => {
+    if (reason === "clickaway") {
+      return;
+    }
+
+    setOpenSnackBar(false);
+  };
 
   const handleTitleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setTitle(event.target.value);
@@ -42,15 +61,70 @@ const TaskList = () => {
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    console.log();
+    try {
+      if (toEditTask) {
+        const result = await updateTaskMutation({
+          id: toEditTask.id,
+          params: {
+            title,
+          },
+        });
+        if (result?.data) {
+          dispatch(updateTask(result.data));
+        }
+      } else {
+        const result = await addTaskMutation({ title }).unwrap();
+        dispatch(addTask(result));
+      }
+
+      setTitle("");
+    } catch (error) {
+      console.error(error);
+      setErrorText("There was an error adding the task");
+      setOpenSnackBar(true);
+    } finally {
+      setToEditTask(undefined);
+    }
   };
 
-  const handleToEditTask = (task: Task) => {
+  const handleChangeCompleted = async (bool: boolean, task: Task) => {
+    try {
+      const result = await updateTaskMutation({
+        id: task.id,
+        params: {
+          isCompleted: bool,
+        },
+      });
+      if (result?.data) {
+        dispatch(updateTask(result.data));
+      }
+    } catch (error) {
+      console.error(error);
+      setErrorText("There was an error updating the task");
+      setOpenSnackBar(true);
+    }
+  };
+
+  const handleEditTask = (task: Task) => {
     setToEditTask(task);
+    setTitle(task.title);
   };
 
-  const handleToDeleteTask = (task: Task) => {
+  const handleDeleteTask = async (task: Task) => {
     setToDeleteTask(task);
+
+    try {
+      const result = await deleteTaskMutation(task.id);
+      if (result?.data) {
+        dispatch(deleteTask(result.data.id));
+      }
+    } catch (error) {
+      console.error(error);
+      setErrorText("There was an error deleting the task");
+      setOpenSnackBar(true);
+    } finally {
+      setToDeleteTask(undefined);
+    }
   };
 
   useEffect(() => {
@@ -67,34 +141,13 @@ const TaskList = () => {
         gap: 2,
       }}
     >
-      <form onSubmit={handleSubmit} autoComplete="off">
-        <Grid container spacing={2}>
-          <Grid size={10}>
-            <TextField
-              name="title"
-              type="text"
-              label="Task Title"
-              placeholder="Enter task title"
-              value={title}
-              onChange={handleTitleChange}
-              fullWidth
-              required
-            />
-          </Grid>
-          <Grid size={2}>
-            <Button
-              type="submit"
-              variant="contained"
-              size="large"
-              fullWidth
-              sx={{ height: "56px" }}
-              disabled={isLoadingTasks || isLoadingAddTask}
-            >
-              Submit
-            </Button>
-          </Grid>
-        </Grid>
-      </form>
+      <TaskForm
+        title={title}
+        onChange={handleTitleChange}
+        onSubmit={handleSubmit}
+        isLoading={isLoadingTasks || isLoadingAddTask || isLoadingUpdateTask}
+        isEditing={!!toEditTask}
+      />
       {isLoadingTasks && (
         <Box sx={{ display: "flex", justifyContent: "center" }}>
           <CircularProgress size={48} />
@@ -104,10 +157,27 @@ const TaskList = () => {
         <TaskItem
           key={task.id}
           task={task}
-          onEdit={handleToEditTask}
-          onDelete={handleToDeleteTask}
+          onChangeCompleted={handleChangeCompleted}
+          onEdit={handleEditTask}
+          onDelete={handleDeleteTask}
+          isEditing={toEditTask?.id === task.id}
+          isDeleting={toDeleteTask?.id === task.id && isLoadingDeleteTask}
         />
       ))}
+      <Snackbar
+        open={openSnackBar}
+        autoHideDuration={5000}
+        onClose={handleCloseSnackBar}
+      >
+        <Alert
+          onClose={handleCloseSnackBar}
+          severity="error"
+          variant="filled"
+          sx={{ width: "100%" }}
+        >
+          {errorText}
+        </Alert>
+      </Snackbar>
     </Box>
   );
 };

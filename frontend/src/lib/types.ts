@@ -23,3 +23,8 @@ export type LoginResponse = {
 export type CreateTaskParams = {
   title: string;
 };
+
+export type UpdateTaskParams = {
+  title?: string;
+  isCompleted?: boolean;
+};

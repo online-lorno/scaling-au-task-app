@@ -30,10 +30,6 @@ const WeatherStatus = () => {
     }
   }, [latitude, longitude, refetch]);
 
-  useEffect(() => {
-    console.log({ data });
-  }, [data]);
-
   return (
     <Box
       sx={{

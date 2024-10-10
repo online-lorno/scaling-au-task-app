@@ -19,3 +19,7 @@ export type LoginParams = {
 export type LoginResponse = {
   access_token: string;
 };
+
+export type CreateTaskParams = {
+  title: string;
+};

@@ -48,3 +48,14 @@ export async function logoutAction() {
     return { success: false, error: "There was an error logging out" };
   }
 }
+
+// Get token to use as bearer token in RTK Query
+export async function getTokenAction() {
+  try {
+    const token = cookies().get(COOKIE_TOKEN)?.value || null;
+    return { success: true, token };
+  } catch (error) {
+    console.error(error);
+    return { success: false, error: "There was an error getting the token" };
+  }
+}

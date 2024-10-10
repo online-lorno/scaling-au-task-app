@@ -1,6 +1,7 @@
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { COOKIE_TOKEN } from "@/lib/constants";
+import TaskList from "@/components/TaskList";
 
 export default function Home() {
   const cookieStore = cookies();
@@ -10,5 +11,5 @@ export default function Home() {
     redirect("/login");
   }
 
-  return <h1>Home Page</h1>;
+  return <TaskList />;
 }

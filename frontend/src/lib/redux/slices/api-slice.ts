@@ -1,21 +1,15 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
-import { Task } from "@/lib/types";
-
-const getTokenFromCookies = () => {
-  const cookies = document.cookie.split("; ");
-  const tokenCookie = cookies.find((row) => row.startsWith("token="));
-  return tokenCookie ? tokenCookie.split("=")[1] : null;
-};
+import { CreateTaskParams, Task } from "@/lib/types";
+import { getTokenAction } from "@/app/(pages)/login/actions";
 
 export const apiSlice = createApi({
   reducerPath: "api",
   baseQuery: fetchBaseQuery({
     baseUrl: "http://localhost:3001",
-    prepareHeaders: (headers) => {
-      const token = getTokenFromCookies(); // Get token from cookies
-      console.log("apiSlice", { token });
+    prepareHeaders: async (headers) => {
+      const { token } = await getTokenAction(); // get token from server-side action
       if (token) {
-        headers.set("Authorization", `Bearer ${token}`); // Set the Authorization header
+        headers.set("Authorization", `Bearer ${token}`);
       }
       return headers;
     },
@@ -24,7 +18,14 @@ export const apiSlice = createApi({
     getTasks: builder.query<Task[], undefined>({
       query: () => "/tasks",
     }),
+    addTask: builder.mutation<Task, CreateTaskParams>({
+      query: (params) => ({
+        url: "/tasks",
+        method: "POST",
+        body: params,
+      }),
+    }),
   }),
 });
 
-export const { useGetTasksQuery } = apiSlice;
+export const { useGetTasksQuery, useAddTaskMutation } = apiSlice;

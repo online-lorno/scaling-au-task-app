@@ -1,0 +1,9 @@
+# backend/.dockerignore
+
+node_modules
+dist
+prisma/migrations
+.git
+Dockerfile
+docker-compose.yml
+.env

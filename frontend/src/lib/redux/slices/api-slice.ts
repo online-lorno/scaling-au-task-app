@@ -5,7 +5,8 @@ import { getTokenAction } from "@/app/(pages)/login/actions";
 export const apiSlice = createApi({
   reducerPath: "api",
   baseQuery: fetchBaseQuery({
-    baseUrl: process.env.NEXT_PUBLIC_API_URL,
+    // baseUrl: process.env.API_URL ?? process.env.NEXT_PUBLIC_API_URL,
+    baseUrl: "http://localhost:3001", // TODO: fix static, env files are not working on docker
     prepareHeaders: async (headers) => {
       const { token } = await getTokenAction(); // get token from server-side action
       if (token) {

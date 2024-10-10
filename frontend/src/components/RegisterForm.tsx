@@ -1,25 +1,24 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import Link from "next/link";
 import {
   Alert,
   Box,
   Button,
-  Link,
   Paper,
   TextField,
   Typography,
 } from "@mui/material";
-import { useAppDispatch } from "@/lib/redux/hooks";
-import { login } from "@/lib/redux/slices/auth-slice";
-import { loginAction } from "@/app/(pages)/login/actions";
+import { registerAction } from "@/app/(pages)/register/actions";
 
-const LoginForm = () => {
-  const dispatch = useAppDispatch();
+const RegisterForm = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
 
   const handleEmailChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setEmail(event.target.value);
@@ -29,22 +28,29 @@ const LoginForm = () => {
     setPassword(event.target.value);
   };
 
+  const handleConfirmPasswordChange = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    setConfirmPassword(event.target.value);
+  };
+
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
     setError("");
+    setSuccess("");
+
+    if (password !== confirmPassword) {
+      setError("Passwords do not match");
+      return;
+    }
+
     startTransition(async () => {
-      const result = await loginAction({ email, password });
+      const result = await registerAction({ email, password });
       if (result.error) {
         setError(result.error);
       } else {
-        // this will automatically redirect to the home page
-        // since it will check again in the login page if it's authenticated
-        dispatch(
-          login({
-            isAuthenticated: true,
-          })
-        );
+        setSuccess("Account registered");
       }
     });
   };
@@ -68,9 +74,14 @@ const LoginForm = () => {
             gap: 2,
           }}
         >
-          <Typography variant="h6">Login Form</Typography>
+          <Typography variant="h6">Register Form</Typography>
           {error && (
-            <Alert severity="error">{error ?? "Invalid credentials"}</Alert>
+            <Alert severity="error">
+              {error ?? "Cannot register with the given credentials"}
+            </Alert>
+          )}
+          {success && (
+            <Alert severity="success">{success ?? "Account registered"}</Alert>
           )}
           <TextField
             name="email"
@@ -88,19 +99,27 @@ const LoginForm = () => {
             onChange={handlePasswordChange}
             required
           />
+          <TextField
+            name="confirmPassword"
+            type="password"
+            label="Confirm Password"
+            value={confirmPassword}
+            onChange={handleConfirmPasswordChange}
+            required
+          />
           <Button
             type="submit"
             variant="contained"
             size="large"
             disabled={isPending}
           >
-            Login
+            Register
           </Button>
-          <Link href="/register">Register here</Link>
+          <Link href="/login">Login here</Link>
         </Paper>
       </form>
     </Box>
   );
 };
 
-export default LoginForm;
+export default RegisterForm;

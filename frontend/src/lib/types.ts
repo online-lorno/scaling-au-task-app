@@ -20,6 +20,11 @@ export type LoginResponse = {
   access_token: string;
 };
 
+export type RegisterParams = {
+  email: string;
+  password: string;
+};
+
 export type CreateTaskParams = {
   title: string;
 };

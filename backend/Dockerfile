@@ -1,5 +1,3 @@
-# backend/Dockerfile
-
 # Stage 1: Build the application
 FROM node:20-alpine AS builder
 
@@ -9,19 +7,19 @@ RUN npm install -g pnpm
 # Set working directory
 WORKDIR /app
 
-# Copy package.json and pnpm-lock.yaml (if you use it)
+# Copy package.json and pnpm-lock.yaml
 COPY package.json pnpm-lock.yaml* ./
 
-# Install dependencies using pnpm
+# Install all dependencies, including dev dependencies
 RUN pnpm install
 
-# Copy the rest of the application code
+# Copy the entire application code
 COPY . .
 
-# Generate Prisma client
-RUN pnpx prisma generate
+# Generate Prisma Client
+RUN pnpm exec prisma generate
 
-# Build the NestJS application
+# Build the application
 RUN pnpm run build
 
 # Stage 2: Run the application
@@ -33,22 +31,17 @@ RUN npm install -g pnpm
 # Set working directory
 WORKDIR /app
 
-# Install production dependencies
-COPY package.json pnpm-lock.yaml* ./
-RUN pnpm install --prod
-
-# Copy built application from builder
+# Copy only the necessary files from the builder stage
 COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/prisma ./prisma
+COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/package.json ./
 
-# Generate Prisma client
-RUN pnpx prisma generate
-
-# Expose the port the app runs on
+# Expose the port the app will run on
 EXPOSE 3001
 
-# Environment variables
+# Set environment variables
 ENV NODE_ENV=production
 
-# Run database migrations and start the server
-CMD ["sh", "-c", "pnpx prisma db push && node dist/main.js"]
+# Run Prisma db push and start the server
+CMD ["sh", "-c", "pnpm exec prisma db push && node dist/main.js"]

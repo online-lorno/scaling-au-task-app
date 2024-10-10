@@ -1,5 +1,10 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
-import { CreateTaskParams, Task, UpdateTaskParams } from "@/lib/types";
+import {
+  CreateTaskParams,
+  GetWeatherParams,
+  Task,
+  UpdateTaskParams,
+} from "@/lib/types";
 import { getTokenAction } from "@/app/(pages)/login/actions";
 
 export const apiSlice = createApi({
@@ -16,6 +21,14 @@ export const apiSlice = createApi({
     },
   }),
   endpoints: (builder) => ({
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    getWeather: builder.query<any, GetWeatherParams>({
+      query: (params) => ({
+        url: "/weather",
+        method: "GET",
+        params,
+      }),
+    }),
     getTasks: builder.query<Task[], undefined>({
       query: () => "/tasks",
     }),
@@ -96,6 +109,7 @@ export const apiSlice = createApi({
 });
 
 export const {
+  useGetWeatherQuery,
   useGetTasksQuery,
   useAddTaskMutation,
   useUpdateTaskMutation,

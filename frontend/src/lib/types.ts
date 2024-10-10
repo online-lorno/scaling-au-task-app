@@ -33,3 +33,8 @@ export type UpdateTaskParams = {
   title?: string;
   isCompleted?: boolean;
 };
+
+export type GetWeatherParams = {
+  lat: number | null;
+  lon: number | null;
+};

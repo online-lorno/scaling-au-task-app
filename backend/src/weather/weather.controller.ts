@@ -16,7 +16,7 @@ export class WeatherController {
     @Query('lon') lon: string,
   ) {
     try {
-      const apiUrl = `https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&appid=${process.env.OPENWEATHER_API_KEY}&units=metric`;
+      const apiUrl = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${process.env.OPENWEATHER_API_KEY}&units=metric`;
 
       const response = await fetch(apiUrl);
       const data = await response.json();

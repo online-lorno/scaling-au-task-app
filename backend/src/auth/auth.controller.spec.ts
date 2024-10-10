@@ -83,12 +83,14 @@ describe('AuthController', () => {
       jest
         .spyOn(authService, 'validateUser')
         .mockImplementation(async () => user);
-      jest
-        .spyOn(authService, 'login')
-        .mockImplementation(async () => ({ access_token: 'testToken' }));
+      jest.spyOn(authService, 'login').mockImplementation(async () => ({
+        access_token: 'testToken',
+        email: user.email,
+      }));
 
       expect(await controller.login(loginDto)).toEqual({
         access_token: 'testToken',
+        email: user.email,
       });
     });
 

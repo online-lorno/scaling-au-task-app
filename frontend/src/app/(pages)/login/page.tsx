@@ -1,3 +1,19 @@
+import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
+import { COOKIE_TOKEN } from "@/lib/constants";
+import LoginForm from "@/components/LoginForm";
+
 export default function Login() {
-  return <h1>Login Page</h1>;
+  const cookieStore = cookies();
+  const token = cookieStore.get(COOKIE_TOKEN);
+
+  if (token) {
+    redirect("/");
+  }
+
+  return (
+    <>
+      <LoginForm />
+    </>
+  );
 }

@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import { Container, CssBaseline, Toolbar } from "@mui/material";
+import Header from "@/components/Header";
 import StoreProvider from "@/lib/providers/store-provider";
 import "./globals.css";
-import Header from "@/components/Header";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -34,7 +34,7 @@ export default function RootLayout({
         <StoreProvider>
           <Header />
           <Toolbar />
-          <Container>{children}</Container>
+          <Container sx={{ padding: 2 }}>{children}</Container>
         </StoreProvider>
       </body>
     </html>

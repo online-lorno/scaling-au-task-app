@@ -1,7 +1,7 @@
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
-import { COOKIE_TOKEN } from "@/lib/constants";
 import LoginForm from "@/components/LoginForm";
+import { COOKIE_TOKEN } from "@/lib/constants";
 
 export default function Login() {
   const cookieStore = cookies();
@@ -11,9 +11,5 @@ export default function Login() {
     redirect("/");
   }
 
-  return (
-    <>
-      <LoginForm />
-    </>
-  );
+  return <LoginForm />;
 }

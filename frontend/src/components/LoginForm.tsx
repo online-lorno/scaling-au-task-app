@@ -11,7 +11,7 @@ import {
 } from "@mui/material";
 import { useAppDispatch } from "@/lib/redux/hooks";
 import { login } from "@/lib/redux/slices/auth-slice";
-import loginAction from "@/app/(pages)/login/actions";
+import { loginAction } from "@/app/(pages)/login/actions";
 
 const LoginForm = () => {
   const dispatch = useAppDispatch();
@@ -37,15 +37,13 @@ const LoginForm = () => {
       if (result.error) {
         setError(result.error);
       } else {
+        // this will automatically redirect to the home page
+        // since it will check again in the login page if it's authenticated
         dispatch(
           login({
             isAuthenticated: true,
-            email,
           })
         );
-
-        // Redirect to the home page upon success
-        window.location.href = "/";
       }
     });
   };

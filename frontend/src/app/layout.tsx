@@ -4,6 +4,8 @@ import { Container, CssBaseline, Toolbar } from "@mui/material";
 import Header from "@/components/Header";
 import StoreProvider from "@/lib/providers/store-provider";
 import "./globals.css";
+import { COOKIE_TOKEN } from "@/lib/constants";
+import { cookies } from "next/headers";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -26,12 +28,15 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const cookieStore = cookies();
+  const token = cookieStore.get(COOKIE_TOKEN)?.value || null;
+
   return (
     <html lang="en">
       <head />
       <body className={`${geistSans.variable} ${geistMono.variable}`}>
         <CssBaseline />
-        <StoreProvider>
+        <StoreProvider isAuthenticated={!!token}>
           <Header />
           <Toolbar />
           <Container sx={{ padding: 2 }}>{children}</Container>

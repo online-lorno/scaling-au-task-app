@@ -7,7 +7,7 @@ import ElevationScroll from "./ElevationScroll";
 import HeaderUserMenu from "./HeaderUserMenu";
 
 const Header = () => {
-  const email = useAppSelector((state) => state.auth.email);
+  const isAuthenticated = useAppSelector((state) => state.auth.isAuthenticated);
 
   return (
     <ElevationScroll>
@@ -36,7 +36,7 @@ const Header = () => {
                 scaling
               </Typography>
             </Link>
-            {email && <HeaderUserMenu />}
+            {isAuthenticated && <HeaderUserMenu />}
           </Toolbar>
         </Container>
       </AppBar>

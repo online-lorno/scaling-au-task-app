@@ -13,6 +13,7 @@ export const apiSlice = createApi({
     baseUrl: "http://localhost:3001",
     prepareHeaders: (headers) => {
       const token = getTokenFromCookies(); // Get token from cookies
+      console.log("apiSlice", { token });
       if (token) {
         headers.set("Authorization", `Bearer ${token}`); // Set the Authorization header
       }

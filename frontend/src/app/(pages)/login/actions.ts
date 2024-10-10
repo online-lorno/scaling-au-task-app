@@ -4,7 +4,7 @@ import { cookies } from "next/headers";
 import { LoginParams } from "@/lib/types";
 import { COOKIE_TOKEN } from "@/lib/constants";
 
-export default async function loginAction(params: LoginParams) {
+export async function loginAction(params: LoginParams) {
   try {
     const result = await fetch("http://localhost:3001/auth/login", {
       method: "POST",
@@ -36,5 +36,15 @@ export default async function loginAction(params: LoginParams) {
   } catch (error) {
     console.error(error);
     return { success: false, error: "Email or password is incorrect" };
+  }
+}
+
+export async function logoutAction() {
+  try {
+    cookies().delete(COOKIE_TOKEN);
+    return { success: true };
+  } catch (error) {
+    console.error(error);
+    return { success: false, error: "There was an error logging out" };
   }
 }

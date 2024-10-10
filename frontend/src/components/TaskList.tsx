@@ -8,6 +8,7 @@ import {
   CircularProgress,
   Snackbar,
   SnackbarCloseReason,
+  Typography,
 } from "@mui/material";
 import {
   useAddTaskMutation,
@@ -153,17 +154,25 @@ const TaskList = () => {
           <CircularProgress size={48} />
         </Box>
       )}
-      {tasks.map((task) => (
-        <TaskItem
-          key={task.id}
-          task={task}
-          onChangeCompleted={handleChangeCompleted}
-          onEdit={handleEditTask}
-          onDelete={handleDeleteTask}
-          isEditing={toEditTask?.id === task.id}
-          isDeleting={toDeleteTask?.id === task.id && isLoadingDeleteTask}
-        />
-      ))}
+      {!isLoadingTasks && !tasks.length && (
+        <Box sx={{ display: "flex", justifyContent: "center" }}>
+          <Typography variant="h6" className="font-mono">
+            No tasks available
+          </Typography>
+        </Box>
+      )}
+      {!isLoadingTasks &&
+        tasks.map((task) => (
+          <TaskItem
+            key={task.id}
+            task={task}
+            onChangeCompleted={handleChangeCompleted}
+            onEdit={handleEditTask}
+            onDelete={handleDeleteTask}
+            isEditing={toEditTask?.id === task.id}
+            isDeleting={toDeleteTask?.id === task.id && isLoadingDeleteTask}
+          />
+        ))}
       <Snackbar
         open={openSnackBar}
         autoHideDuration={5000}

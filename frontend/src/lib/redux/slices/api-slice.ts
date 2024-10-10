@@ -5,7 +5,7 @@ import { getTokenAction } from "@/app/(pages)/login/actions";
 export const apiSlice = createApi({
   reducerPath: "api",
   baseQuery: fetchBaseQuery({
-    baseUrl: "http://localhost:3001",
+    baseUrl: process.env.NEXT_PUBLIC_API_URL,
     prepareHeaders: async (headers) => {
       const { token } = await getTokenAction(); // get token from server-side action
       if (token) {

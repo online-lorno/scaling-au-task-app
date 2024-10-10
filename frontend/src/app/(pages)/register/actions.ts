@@ -4,7 +4,7 @@ import { RegisterParams } from "@/lib/types";
 
 export async function registerAction(params: RegisterParams) {
   try {
-    const result = await fetch("http://localhost:3001/auth/register", {
+    const result = await fetch(`${process.env.API_URL}/auth/register`, {
       method: "POST",
       body: JSON.stringify(params),
       headers: {

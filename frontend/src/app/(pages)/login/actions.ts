@@ -6,7 +6,7 @@ import { COOKIE_TOKEN } from "@/lib/constants";
 
 export async function loginAction(params: LoginParams) {
   try {
-    const result = await fetch("http://localhost:3001/auth/login", {
+    const result = await fetch(`${process.env.API_URL}/auth/login`, {
       method: "POST",
       body: JSON.stringify(params),
       headers: {
